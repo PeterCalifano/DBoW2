@@ -1,12 +1,12 @@
 option(BUILD_DBOW2_STANDALONE "Build DBoW2 as a standalone project" ON) 
 
 # Set name of the module
-set(project_name DBoW2)
+set(project_name_ DBoW2)
 
 if (BUILD_DBOW2_STANDALONE)
   message(STATUS "Building DBoW2 as a standalone project...")
   cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-  project(${project_name})
+  project(${project_name_})
 
   include(ExternalProject)
 
@@ -67,17 +67,23 @@ if(BUILD_DBoW2)
     set(LIB_SHARED "STATIC")
   endif(WIN32)
 
-  add_library(${project_name} ${LIB_TYPE} ${SRCS})
-  target_include_directories(${project_name} PUBLIC include/DBoW2/ include/)
-  target_link_libraries(${project_name} ${OpenCV_LIBS})
-  set_target_properties(${project_name} PROPERTIES CXX_STANDARD 11)
+  add_library(${project_name_} ${LIB_TYPE} ${SRCS})
+
+  # Define include directories for the include library
+  target_include_directories(${project_name_} PUBLIC 
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>  # Used during development
+                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/${project_name_}>  # Used in installed projects
+)
+
+  target_link_libraries(${project_name_} ${OpenCV_LIBS})
+  set_target_properties(${project_name_} PROPERTIES CXX_STANDARD 11)
 
 endif(BUILD_DBoW2)
 
 if(BUILD_Demo)
 
   add_executable(demo demo/demo.cpp)
-  target_link_libraries(demo ${project_name} ${OpenCV_LIBS})
+  target_link_libraries(demo ${project_name_} ${OpenCV_LIBS})
   set_target_properties(demo PROPERTIES CXX_STANDARD 11)
   file(COPY demo/images DESTINATION ${CMAKE_BINARY_DIR}/)
 
@@ -87,19 +93,22 @@ endif(BUILD_Demo)
 configure_file(src/DBoW2.cmake.in
   "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" @ONLY)
 
-
 # Configure install 
-install(TARGETS ${project_name} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib) # Install targets
-install(DIRECTORY include/DBoW2 DESTINATION ${CMAKE_INSTALL_PREFIX}/include) # Install headers
+install(TARGETS ${project_name_} 
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib) # Install targets
+
+install(DIRECTORY include/DBoW2 
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include) # Install headers
 
 # Install the config file for cmake
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/DBoW2Config.cmake"
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${project_name})
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${project_name_})
 
 install(FILES "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" 
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/DBoW2/)
 
 # Install dependency if standalone
 if (BUILD_DBOW2_STANDALONE)
-  install(DIRECTORY ${DEPENDENCY_INSTALL_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX} OPTIONAL)
+  install(DIRECTORY ${DEPENDENCY_INSTALL_DIR}/ 
+          DESTINATION ${CMAKE_INSTALL_PREFIX} OPTIONAL)
 endif()
