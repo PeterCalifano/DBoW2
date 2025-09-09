@@ -7,9 +7,9 @@
  *
  */
 
-#include <iostream>
+#include <DBoW2/QueryResults.h>
 #include <fstream>
-#include "QueryResults.h"
+#include <iostream>
 
 using namespace std;
 

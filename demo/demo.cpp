@@ -10,16 +10,15 @@
 #include <vector>
 
 // DBoW2
-#include "DBoW2.h" // defines OrbVocabulary and OrbDatabase
+#include <DBoW2/DBoW2.h> // defines OrbVocabulary and OrbDatabase
 
 // OpenCV
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/features2d.hpp>
 
-
 using namespace DBoW2;
-using namespace std;
+using std::vector, std::string, std::cout, std::endl, std::stringstream;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 

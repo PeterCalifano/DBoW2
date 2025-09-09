@@ -435,6 +435,8 @@ TemplatedVocabulary<TDescriptor,F>::TemplatedVocabulary
   : m_k(k), m_L(L), m_weighting(weighting), m_scoring(scoring),
   m_scoring_object(NULL)
 {
+  std::cout << "Creating vocabulary with k=" << k << ", L=" << L 
+    << ", weighting=" << weighting << ", scoring=" << scoring << std::endl;
   createScoringObject();
 }
 
@@ -444,6 +446,7 @@ template<class TDescriptor, class F>
 TemplatedVocabulary<TDescriptor,F>::TemplatedVocabulary
   (const std::string &filename): m_scoring_object(NULL)
 {
+  std::cout << "Loading vocabulary from file " << filename << "\n";
   load(filename);
 }
 
@@ -453,6 +456,7 @@ template<class TDescriptor, class F>
 TemplatedVocabulary<TDescriptor,F>::TemplatedVocabulary
   (const char *filename): m_scoring_object(NULL)
 {
+  std::cout << "Loading vocabulary from file " << filename << "\n";
   load(filename);
 }
 
@@ -498,6 +502,7 @@ void TemplatedVocabulary<TDescriptor,F>::createScoringObject()
 template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::setScoringType(ScoringType type)
 {
+  std::cout << "Creating scoring object...\n";
   m_scoring = type;
   createScoringObject();
 }
@@ -540,8 +545,9 @@ TemplatedVocabulary<TDescriptor,F>::operator=
   this->m_scoring = voc.m_scoring;
   this->m_weighting = voc.m_weighting;
 
+  std::cout << "Creating scoring object...\n";
   this->createScoringObject();
-  
+
   this->m_nodes.clear();
   this->m_words.clear();
   
@@ -565,11 +571,9 @@ void TemplatedVocabulary<TDescriptor,F>::create(
 		(int)((pow((double)m_k, (double)m_L + 1) - 1)/(m_k - 1));
 
   m_nodes.reserve(expected_nodes); // avoid allocations when creating the tree
-  
-  
+    
   std::vector<pDescriptor> features;
   getFeatures(training_features, features);
-
 
   // create root  
   m_nodes.push_back(Node(0)); // root
@@ -609,6 +613,8 @@ void TemplatedVocabulary<TDescriptor,F>::create(
   m_L = L;
   m_weighting = weighting;
   m_scoring = scoring;
+  
+  std::cout << "Creating scoring object...\n";
   createScoringObject();
   
   create(training_features);
