@@ -32,8 +32,7 @@ template<class TDescriptor, class F>
 class TemplatedVocabulary
 {		
 public:
-  typedef TDescriptor FeatureType; // Define type to identify feature type for static assert
-
+  
   /**
    * Initiates an empty vocabulary
    * @param k branching factor
@@ -41,9 +40,9 @@ public:
    * @param weighting weighting type
    * @param scoring scoring type
    */
-  TemplatedVocabulary(int k = 10, int L = 5,
-                      WeightingType weighting = TF_IDF, ScoringType scoring = L1_NORM);
-
+  TemplatedVocabulary(int k = 10, int L = 5, 
+    WeightingType weighting = TF_IDF, ScoringType scoring = L1_NORM);
+  
   /**
    * Creates the vocabulary by loading a file
    * @param filename
@@ -435,8 +434,6 @@ TemplatedVocabulary<TDescriptor,F>::TemplatedVocabulary
   : m_k(k), m_L(L), m_weighting(weighting), m_scoring(scoring),
   m_scoring_object(NULL)
 {
-  std::cout << "Creating vocabulary with k=" << k << ", L=" << L 
-    << ", weighting=" << weighting << ", scoring=" << scoring << std::endl;
   createScoringObject();
 }
 
@@ -446,7 +443,6 @@ template<class TDescriptor, class F>
 TemplatedVocabulary<TDescriptor,F>::TemplatedVocabulary
   (const std::string &filename): m_scoring_object(NULL)
 {
-  std::cout << "Loading vocabulary from file " << filename << "\n";
   load(filename);
 }
 
@@ -456,7 +452,6 @@ template<class TDescriptor, class F>
 TemplatedVocabulary<TDescriptor,F>::TemplatedVocabulary
   (const char *filename): m_scoring_object(NULL)
 {
-  std::cout << "Loading vocabulary from file " << filename << "\n";
   load(filename);
 }
 
@@ -502,7 +497,6 @@ void TemplatedVocabulary<TDescriptor,F>::createScoringObject()
 template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::setScoringType(ScoringType type)
 {
-  std::cout << "Creating scoring object...\n";
   m_scoring = type;
   createScoringObject();
 }
@@ -545,9 +539,8 @@ TemplatedVocabulary<TDescriptor,F>::operator=
   this->m_scoring = voc.m_scoring;
   this->m_weighting = voc.m_weighting;
 
-  std::cout << "Creating scoring object...\n";
   this->createScoringObject();
-
+  
   this->m_nodes.clear();
   this->m_words.clear();
   
@@ -571,9 +564,11 @@ void TemplatedVocabulary<TDescriptor,F>::create(
 		(int)((pow((double)m_k, (double)m_L + 1) - 1)/(m_k - 1));
 
   m_nodes.reserve(expected_nodes); // avoid allocations when creating the tree
-    
+  
+  
   std::vector<pDescriptor> features;
   getFeatures(training_features, features);
+
 
   // create root  
   m_nodes.push_back(Node(0)); // root
@@ -613,8 +608,6 @@ void TemplatedVocabulary<TDescriptor,F>::create(
   m_L = L;
   m_weighting = weighting;
   m_scoring = scoring;
-  
-  std::cout << "Creating scoring object...\n";
   createScoringObject();
   
   create(training_features);
@@ -1354,8 +1347,11 @@ template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::load(const std::string &filename)
 {
   cv::FileStorage fs(filename.c_str(), cv::FileStorage::READ);
-  if(!fs.isOpened()) throw std::string("Could not open file ") + filename;
-  
+  if(!fs.isOpened()) 
+  {
+    throw std::string("Could not open file ") + filename;
+  }  
+
   this->load(fs);
 }
 
@@ -1462,44 +1458,49 @@ template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::load(const cv::FileStorage &fs,
   const std::string &name)
 {
-  m_words.clear();
-  m_nodes.clear();
-  
-  cv::FileNode fvoc = fs[name];
-  
-  m_k = (int)fvoc["k"];
-  m_L = (int)fvoc["L"];
-  m_scoring = (ScoringType)((int)fvoc["scoringType"]);
-  m_weighting = (WeightingType)((int)fvoc["weightingType"]);
-  
-  createScoringObject();
 
-  // nodes
-  cv::FileNode fn = fvoc["nodes"];
+    m_words.clear();
+    m_nodes.clear();
 
-  m_nodes.resize(fn.size() + 1); // +1 to include root
-  m_nodes[0].id = 0;
+    cv::FileNode fvoc = fs[name];
 
-  for(unsigned int i = 0; i < fn.size(); ++i)
-  {
-    NodeId nid = (int)fn[i]["nodeId"];
-    NodeId pid = (int)fn[i]["parentId"];
-    WordValue weight = (WordValue)fn[i]["weight"];
-    std::string d = (std::string)fn[i]["descriptor"];
-    
-    m_nodes[nid].id = nid;
-    m_nodes[nid].parent = pid;
-    m_nodes[nid].weight = weight;
-    m_nodes[pid].children.push_back(nid);
-    
-    F::fromString(m_nodes[nid].descriptor, d);
-  }
+    m_k = (int)fvoc["k"];
+    m_L = (int)fvoc["L"];
+    m_scoring = (ScoringType)((int)fvoc["scoringType"]);
+    m_weighting = (WeightingType)((int)fvoc["weightingType"]);
+
+    createScoringObject();
+
+    // nodes
+    cv::FileNode fn = fvoc["nodes"];
+
+    m_nodes.resize(fn.size() + 1); // +1 to include root
+    m_nodes[0].id = 0;
+
+    std::cout << "--- Number of nodes in vocabulary: " << fn.size() << "\n";
+    for (unsigned int i = 0; i < fn.size(); ++i)
+    {
+        NodeId nid = (int)fn[i]["nodeId"];
+        NodeId pid = (int)fn[i]["parentId"];
+        WordValue weight = (WordValue)fn[i]["weight"];
+        std::string d = (std::string)fn[i]["descriptor"];
+
+        m_nodes[nid].id = nid;
+        m_nodes[nid].parent = pid;
+        m_nodes[nid].weight = weight;
+        m_nodes[pid].children.push_back(nid);
+
+        F::fromString(m_nodes[nid].descriptor, d);
+
+        std::cout << "Nodes loading loop iter " << i << " / " << fn.size() << "\r";
+    }
   
   // words
   fn = fvoc["words"];
   
   m_words.resize(fn.size());
-
+  
+  std::cout << "--- Number of words in vocabulary: " << fn.size() << "\n";
   for(unsigned int i = 0; i < fn.size(); ++i)
   {
     NodeId wid = (int)fn[i]["wordId"];
@@ -1507,6 +1508,8 @@ void TemplatedVocabulary<TDescriptor,F>::load(const cv::FileStorage &fs,
     
     m_nodes[nid].word_id = wid;
     m_words[wid] = &m_nodes[nid];
+
+    std::cout << "Words loading loop iter " << i << " / " << fn.size() << "\r";
   }
 }
 
