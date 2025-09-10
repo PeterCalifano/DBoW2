@@ -118,7 +118,7 @@ void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out)
 
 // ----------------------------------------------------------------------------
 
-void testVocCreation(const vector<vector<cv::Mat > > &features)
+void testVocCreation(const vector<vector<cv::Mat >> &features)
 {
   // branching factor and depth levels 
   const int k = 9;

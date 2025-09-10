@@ -1,12 +1,18 @@
 option(BUILD_DBOW2_STANDALONE "Build DBoW2 as a standalone project" ON) 
 
 # Set name of the module
-set(project_name_ DBoW2)
+set(project_name_ "DBoW2")
+# Set version number
+set(PROJECT_VERSION_MAJOR 0)
+set(PROJECT_VERSION_MINOR 1)
+set(PROJECT_VERSION_PATCH 0)
 
 if (BUILD_DBOW2_STANDALONE)
+  
   message(STATUS "Building DBoW2 as a standalone project...")
   cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-  project(${project_name_})
+  project(${project_name_},
+          VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
   include(ExternalProject)
 
@@ -67,7 +73,9 @@ if(BUILD_DBoW2)
     set(LIB_SHARED "STATIC")
   endif(WIN32)
 
-  add_library(${project_name_} ${LIB_TYPE} ${SRCS})
+  add_library(${project_name_} 
+            ${LIB_TYPE} 
+            ${SRCS})
 
   # Define include directories for the include library
   target_include_directories(${project_name_} PUBLIC 
@@ -89,26 +97,71 @@ if(BUILD_Demo)
 
 endif(BUILD_Demo)
 
-# Copy cmake script to build directory
-configure_file(src/DBoW2.cmake.in
-  "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" @ONLY)
+###### Configure install ########################################
 
-# Configure install 
-install(TARGETS ${project_name_} 
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib) # Install targets
+# Install the target and headers
+install(TARGETS ${project_name_}
+  EXPORT ${project_name_} # Export target to be used by other projects
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(DIRECTORY include/DBoW2 
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include) # Install headers
+#install(DIRECTORY include/ 
+#        DESTINATION include)
+
+#install(TARGETS ${project_name_} 
+#        DESTINATION lib) # Install targets
+
+#install(DIRECTORY include/DBoW2 
+#        DESTINATION include) # Install headers
 
 # Install the config file for cmake
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/DBoW2Config.cmake"
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${project_name_})
+#install(FILES "${CMAKE_CURRENT_BINARY_DIR}/DBoW2Config.cmake"
+#  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${project_name_})
 
-install(FILES "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" 
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/DBoW2/)
+#install(FILES "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" 
+#  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/DBoW2/)
 
 # Install dependency if standalone
-if (BUILD_DBOW2_STANDALONE)
-  install(DIRECTORY ${DEPENDENCY_INSTALL_DIR}/ 
-          DESTINATION ${CMAKE_INSTALL_PREFIX} OPTIONAL)
-endif()
+#if (BUILD_DBOW2_STANDALONE)
+#  install(DIRECTORY ${DEPENDENCY_INSTALL_DIR}/ 
+#          DESTINATION ${CMAKE_INSTALL_PREFIX} OPTIONAL)
+#endif()
+
+# Generate Config + Version files
+include(CMakePackageConfigHelpers)
+
+# Copy cmake script to build directory
+#configure_file(src/DBoW2.cmake.in
+#  "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" @ONLY)
+
+# Install the exports and config files
+install(EXPORT ${project_name_}
+    FILE ${project_name_}Target.cmake
+    NAMESPACE ${project_name_}::
+    DESTINATION lib/cmake/${project_name_}
+)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${project_name_}ConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+
+# ${project_name_}Config.cmake.in should usually contain only:
+#   include("${CMAKE_CURRENT_LIST_DIR}/${project_name_}Targets.cmake")
+#   # optional: find_dependency(....)
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/${project_name_}Config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${project_name_}Config.cmake"
+  INSTALL_DESTINATION lib/cmake/${project_name_})
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${project_name_}Config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/${project_name_}ConfigVersion.cmake"
+  DESTINATION lib/cmake/${project_name_})
+
+# Add target export to allow usage of build by other consumer projects
+export(EXPORT ${project_name_}
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/${project_name_}Target.cmake"
+)
