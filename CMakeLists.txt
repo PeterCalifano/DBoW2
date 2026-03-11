@@ -84,7 +84,7 @@ if(BUILD_DBoW2)
 )
 
   target_link_libraries(${project_name_} ${OpenCV_LIBS})
-  set_target_properties(${project_name_} PROPERTIES CXX_STANDARD 11)
+  set_target_properties(${project_name_} PROPERTIES CXX_STANDARD 17)
 
 endif(BUILD_DBoW2)
 
@@ -92,7 +92,7 @@ if(BUILD_Demo)
 
   add_executable(demo demo/demo.cpp)
   target_link_libraries(demo ${project_name_} ${OpenCV_LIBS})
-  set_target_properties(demo PROPERTIES CXX_STANDARD 11)
+  set_target_properties(demo PROPERTIES CXX_STANDARD 17)
   file(COPY demo/images DESTINATION ${CMAKE_BINARY_DIR}/)
 
 endif(BUILD_Demo)
@@ -107,27 +107,8 @@ install(TARGETS ${project_name_}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-#install(DIRECTORY include/ 
-#        DESTINATION include)
-
-#install(TARGETS ${project_name_} 
-#        DESTINATION lib) # Install targets
-
-#install(DIRECTORY include/DBoW2 
-#        DESTINATION include) # Install headers
-
-# Install the config file for cmake
-#install(FILES "${CMAKE_CURRENT_BINARY_DIR}/DBoW2Config.cmake"
-#  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${project_name_})
-
-#install(FILES "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" 
-#  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/DBoW2/)
-
-# Install dependency if standalone
-#if (BUILD_DBOW2_STANDALONE)
-#  install(DIRECTORY ${DEPENDENCY_INSTALL_DIR}/ 
-#          DESTINATION ${CMAKE_INSTALL_PREFIX} OPTIONAL)
-#endif()
+install(DIRECTORY include/DBoW2
+        DESTINATION include) # Install headers
 
 # Generate Config + Version files
 include(CMakePackageConfigHelpers)
@@ -148,9 +129,6 @@ write_basic_package_version_file(
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
-# ${project_name_}Config.cmake.in should usually contain only:
-#   include("${CMAKE_CURRENT_LIST_DIR}/${project_name_}Targets.cmake")
-#   # optional: find_dependency(....)
 configure_package_config_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/src/${project_name_}Config.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${project_name_}Config.cmake"
