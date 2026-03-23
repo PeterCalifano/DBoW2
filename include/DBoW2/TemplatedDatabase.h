@@ -29,8 +29,8 @@ namespace DBoW2 {
 static int MIN_COMMON_WORDS = 5;
 
 /// @param TDescriptor class of descriptor
-/// @param F class of descriptor functions
-template<class TDescriptor, class F>
+/// @param TFeature class of descriptor functions
+template<class TDescriptor, class TFeature>
 /// Generic Database
 class TemplatedDatabase
 {
@@ -46,7 +46,7 @@ public:
 
   /**
    * Creates a database with the given vocabulary
-   * @param T class inherited from TemplatedVocabulary<TDescriptor, F>
+   * @param T class inherited from TemplatedVocabulary<TDescriptor, TFeature>
    * @param voc vocabulary
    * @param use_di a direct index is used to store feature indexes
    * @param di_levels levels to go up the vocabulary tree to select the 
@@ -60,7 +60,7 @@ public:
    * Copy constructor. Copies the vocabulary too
    * @param db object to copy
    */
-  TemplatedDatabase(const TemplatedDatabase<TDescriptor, F> &db);
+  TemplatedDatabase(const TemplatedDatabase<TDescriptor, TFeature> &db);
 
   /** 
    * Creates the database from a file
@@ -83,12 +83,12 @@ public:
    * Copies the given database and its vocabulary
    * @param db database to copy
    */
-  TemplatedDatabase<TDescriptor,F>& operator=(
-    const TemplatedDatabase<TDescriptor,F> &db);
+  TemplatedDatabase<TDescriptor,TFeature>& operator=(
+    const TemplatedDatabase<TDescriptor,TFeature> &db);
 
   /**
    * Sets the vocabulary to use and clears the content of the database.
-   * @param T class inherited from TemplatedVocabulary<TDescriptor, F>
+   * @param T class inherited from TemplatedVocabulary<TDescriptor, TFeature>
    * @param voc vocabulary to copy
    */
   template<class T>
@@ -97,7 +97,7 @@ public:
   /**
    * Sets the vocabulary to use and the direct index parameters, and clears
    * the content of the database
-   * @param T class inherited from TemplatedVocabulary<TDescriptor, F>
+   * @param T class inherited from TemplatedVocabulary<TDescriptor, TFeature>
    * @param voc vocabulary to copy
    * @param use_di a direct index is used to store feature indexes
    * @param di_levels levels to go up the vocabulary tree to select the 
@@ -110,7 +110,7 @@ public:
    * Returns a pointer to the vocabulary used
    * @return vocabulary
    */
-  inline const TemplatedVocabulary<TDescriptor,F>* getVocabulary() const;
+  inline const TemplatedVocabulary<TDescriptor,TFeature>* getVocabulary() const;
 
   /** 
    * Allocates some memory for the direct and inverted indexes
@@ -297,7 +297,7 @@ protected:
 protected:
 
   /// Associated vocabulary
-  TemplatedVocabulary<TDescriptor, F> *m_voc;
+  TemplatedVocabulary<TDescriptor, TFeature> *m_voc;
   
   /// Flag to use direct index
   bool m_use_di;
@@ -319,8 +319,8 @@ protected:
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
+template<class TDescriptor, class TFeature>
+TemplatedDatabase<TDescriptor, TFeature>::TemplatedDatabase
   (bool use_di, int di_levels)
   : m_voc(NULL), m_use_di(use_di), m_dilevels(di_levels), m_nentries(0)
 {
@@ -328,9 +328,9 @@ TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
+template<class TDescriptor, class TFeature>
 template<class T>
-TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
+TemplatedDatabase<TDescriptor, TFeature>::TemplatedDatabase
   (const T &voc, bool use_di, int di_levels)
   : m_voc(NULL), m_use_di(use_di), m_dilevels(di_levels)
 {
@@ -340,9 +340,9 @@ TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-TemplatedDatabase<TDescriptor,F>::TemplatedDatabase
-  (const TemplatedDatabase<TDescriptor,F> &db)
+template<class TDescriptor, class TFeature>
+TemplatedDatabase<TDescriptor,TFeature>::TemplatedDatabase
+  (const TemplatedDatabase<TDescriptor,TFeature> &db)
   : m_voc(NULL)
 {
   *this = db;
@@ -350,8 +350,8 @@ TemplatedDatabase<TDescriptor,F>::TemplatedDatabase
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
+template<class TDescriptor, class TFeature>
+TemplatedDatabase<TDescriptor, TFeature>::TemplatedDatabase
   (const std::string &filename)
   : m_voc(NULL)
 {
@@ -360,8 +360,8 @@ TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
+template<class TDescriptor, class TFeature>
+TemplatedDatabase<TDescriptor, TFeature>::TemplatedDatabase
   (const char *filename)
   : m_voc(NULL)
 {
@@ -370,17 +370,17 @@ TemplatedDatabase<TDescriptor, F>::TemplatedDatabase
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-TemplatedDatabase<TDescriptor, F>::~TemplatedDatabase(void)
+template<class TDescriptor, class TFeature>
+TemplatedDatabase<TDescriptor, TFeature>::~TemplatedDatabase(void)
 {
   delete m_voc;
 }
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-TemplatedDatabase<TDescriptor,F>& TemplatedDatabase<TDescriptor,F>::operator=
-  (const TemplatedDatabase<TDescriptor,F> &db)
+template<class TDescriptor, class TFeature>
+TemplatedDatabase<TDescriptor,TFeature>& TemplatedDatabase<TDescriptor,TFeature>::operator=
+  (const TemplatedDatabase<TDescriptor,TFeature> &db)
 {
   if(this != &db)
   {
@@ -396,8 +396,8 @@ TemplatedDatabase<TDescriptor,F>& TemplatedDatabase<TDescriptor,F>::operator=
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-EntryId TemplatedDatabase<TDescriptor, F>::add(
+template<class TDescriptor, class TFeature>
+EntryId TemplatedDatabase<TDescriptor, TFeature>::add(
   const std::vector<TDescriptor> &features,
   BowVector *bowvec, FeatureVector *fvec)
 {
@@ -429,8 +429,8 @@ EntryId TemplatedDatabase<TDescriptor, F>::add(
 
 // ---------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-EntryId TemplatedDatabase<TDescriptor, F>::add(const BowVector &v,
+template<class TDescriptor, class TFeature>
+EntryId TemplatedDatabase<TDescriptor, TFeature>::add(const BowVector &v,
   const FeatureVector &fv)
 {
   EntryId entry_id = m_nentries++;
@@ -465,9 +465,9 @@ EntryId TemplatedDatabase<TDescriptor, F>::add(const BowVector &v,
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
+template<class TDescriptor, class TFeature>
 template<class T>
-inline void TemplatedDatabase<TDescriptor, F>::setVocabulary
+inline void TemplatedDatabase<TDescriptor, TFeature>::setVocabulary
   (const T& voc)
 {
   delete m_voc;
@@ -477,9 +477,9 @@ inline void TemplatedDatabase<TDescriptor, F>::setVocabulary
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
+template<class TDescriptor, class TFeature>
 template<class T>
-inline void TemplatedDatabase<TDescriptor, F>::setVocabulary
+inline void TemplatedDatabase<TDescriptor, TFeature>::setVocabulary
   (const T& voc, bool use_di, int di_levels)
 {
   m_use_di = use_di;
@@ -491,17 +491,17 @@ inline void TemplatedDatabase<TDescriptor, F>::setVocabulary
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-inline const TemplatedVocabulary<TDescriptor,F>* 
-TemplatedDatabase<TDescriptor, F>::getVocabulary() const
+template<class TDescriptor, class TFeature>
+inline const TemplatedVocabulary<TDescriptor,TFeature>* 
+TemplatedDatabase<TDescriptor, TFeature>::getVocabulary() const
 {
   return m_voc;
 }
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-inline void TemplatedDatabase<TDescriptor, F>::clear()
+template<class TDescriptor, class TFeature>
+inline void TemplatedDatabase<TDescriptor, TFeature>::clear()
 {
   // resize vectors
   m_ifile.resize(0);
@@ -512,8 +512,8 @@ inline void TemplatedDatabase<TDescriptor, F>::clear()
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::allocate(int nd, int ni)
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::allocate(int nd, int ni)
 {
   // m_ifile already contains |words| items
   if(ni > 0)
@@ -538,32 +538,32 @@ void TemplatedDatabase<TDescriptor, F>::allocate(int nd, int ni)
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-inline unsigned int TemplatedDatabase<TDescriptor, F>::size() const
+template<class TDescriptor, class TFeature>
+inline unsigned int TemplatedDatabase<TDescriptor, TFeature>::size() const
 {
   return m_nentries;
 }
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-inline bool TemplatedDatabase<TDescriptor, F>::usingDirectIndex() const
+template<class TDescriptor, class TFeature>
+inline bool TemplatedDatabase<TDescriptor, TFeature>::usingDirectIndex() const
 {
   return m_use_di;
 }
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-inline int TemplatedDatabase<TDescriptor, F>::getDirectIndexLevels() const
+template<class TDescriptor, class TFeature>
+inline int TemplatedDatabase<TDescriptor, TFeature>::getDirectIndexLevels() const
 {
   return m_dilevels;
 }
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::query(
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::query(
   const std::vector<TDescriptor> &features,
   QueryResults &ret, int max_results, int max_id) const
 {
@@ -574,8 +574,8 @@ void TemplatedDatabase<TDescriptor, F>::query(
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::query(
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::query(
   const BowVector &vec, 
   QueryResults &ret, int max_results, int max_id) const
 {
@@ -611,8 +611,8 @@ void TemplatedDatabase<TDescriptor, F>::query(
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::queryL1(const BowVector &vec, 
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::queryL1(const BowVector &vec, 
   QueryResults &ret, int max_results, int max_id) const
 {
   BowVector::const_iterator vit;
@@ -683,8 +683,8 @@ void TemplatedDatabase<TDescriptor, F>::queryL1(const BowVector &vec,
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::queryL2(const BowVector &vec, 
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::queryL2(const BowVector &vec, 
   QueryResults &ret, int max_results, int max_id) const
 {
   BowVector::const_iterator vit;
@@ -771,8 +771,8 @@ void TemplatedDatabase<TDescriptor, F>::queryL2(const BowVector &vec,
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::queryChiSquare(const BowVector &vec, 
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::queryChiSquare(const BowVector &vec, 
   QueryResults &ret, int max_results, int max_id) const
 {
   BowVector::const_iterator vit;
@@ -882,8 +882,8 @@ void TemplatedDatabase<TDescriptor, F>::queryChiSquare(const BowVector &vec,
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::queryKL(const BowVector &vec, 
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::queryKL(const BowVector &vec, 
   QueryResults &ret, int max_results, int max_id) const
 {
   BowVector::const_iterator vit;
@@ -973,8 +973,8 @@ void TemplatedDatabase<TDescriptor, F>::queryKL(const BowVector &vec,
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::queryBhattacharyya(
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::queryBhattacharyya(
   const BowVector &vec, QueryResults &ret, int max_results, int max_id) const
 {
   BowVector::const_iterator vit;
@@ -1046,8 +1046,8 @@ void TemplatedDatabase<TDescriptor, F>::queryBhattacharyya(
 
 // ---------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::queryDotProduct(
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::queryDotProduct(
   const BowVector &vec, QueryResults &ret, int max_results, int max_id) const
 {
   BowVector::const_iterator vit;
@@ -1114,8 +1114,8 @@ void TemplatedDatabase<TDescriptor, F>::queryDotProduct(
 
 // ---------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-const FeatureVector& TemplatedDatabase<TDescriptor, F>::retrieveFeatures
+template<class TDescriptor, class TFeature>
+const FeatureVector& TemplatedDatabase<TDescriptor, TFeature>::retrieveFeatures
   (EntryId id) const
 {
   assert(id < size());
@@ -1124,8 +1124,8 @@ const FeatureVector& TemplatedDatabase<TDescriptor, F>::retrieveFeatures
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::save(const std::string &filename) const
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::save(const std::string &filename) const
 {
   cv::FileStorage fs(filename.c_str(), cv::FileStorage::WRITE);
   if(!fs.isOpened()) throw std::string("Could not open file ") + filename;
@@ -1135,8 +1135,8 @@ void TemplatedDatabase<TDescriptor, F>::save(const std::string &filename) const
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::save(cv::FileStorage &fs,
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::save(cv::FileStorage &fs,
   const std::string &name) const
 {
   // Format YAML:
@@ -1232,8 +1232,8 @@ void TemplatedDatabase<TDescriptor, F>::save(cv::FileStorage &fs,
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::load(const std::string &filename)
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::load(const std::string &filename)
 {
   cv::FileStorage fs(filename.c_str(), cv::FileStorage::READ);
   if(!fs.isOpened()) throw std::string("Could not open file ") + filename;
@@ -1243,13 +1243,13 @@ void TemplatedDatabase<TDescriptor, F>::load(const std::string &filename)
 
 // --------------------------------------------------------------------------
 
-template<class TDescriptor, class F>
-void TemplatedDatabase<TDescriptor, F>::load(const cv::FileStorage &fs,
+template<class TDescriptor, class TFeature>
+void TemplatedDatabase<TDescriptor, TFeature>::load(const cv::FileStorage &fs,
   const std::string &name)
 { 
   // load voc first
   // subclasses must instantiate m_voc before calling this ::load
-  if(!m_voc) m_voc = new TemplatedVocabulary<TDescriptor, F>;
+  if(!m_voc) m_voc = new TemplatedVocabulary<TDescriptor, TFeature>;
   
   m_voc->load(fs);
 
@@ -1326,9 +1326,9 @@ void TemplatedDatabase<TDescriptor, F>::load(const cv::FileStorage &fs,
  * @param os stream to write to
  * @param db
  */
-template<class TDescriptor, class F>
+template<class TDescriptor, class TFeature>
 std::ostream& operator<<(std::ostream &os, 
-  const TemplatedDatabase<TDescriptor,F> &db)
+  const TemplatedDatabase<TDescriptor,TFeature> &db)
 {
   os << "Database: Entries = " << db.size() << ", "
     "Using direct index = " << (db.usingDirectIndex() ? "yes" : "no");
