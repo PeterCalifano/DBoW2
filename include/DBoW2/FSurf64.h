@@ -6,78 +6,102 @@
  * License: see the LICENSE.txt file
  *
  */
- 
+
 #ifndef __D_T_F_SURF_64__
 #define __D_T_F_SURF_64__
 
 #include <opencv2/core.hpp>
-#include <vector>
 #include <string>
-
+#include <vector>
+#include "FeatureTraits.h"
 #include "FClass.h"
 
-namespace DBoW2 {
-
-/// Functions to manipulate SURF64 descriptors
-class FSurf64: protected FClass // DEVNOTE see implementation of this class (or ORB, BRIEF) to get an idea of how to implement any custom descriptor to be used by DBoW2
+namespace DBoW2
 {
-public:
 
-  /// Descriptor type
-  typedef std::vector<float> TDescriptor;
-  /// Pointer to a single descriptor
-  typedef const TDescriptor *pDescriptor;
-  /// Descriptor length
-  static const int L = 64; 
+    class FSurf64;
 
-  /**
-   * Returns the number of dimensions of the descriptor space
-   * @return dimensions
-   */
-  inline static int dimensions()
-  {
-    return L;
-  }
+    template <>
+    struct FeatureTraits<FSurf64>
+    {
+        using Feature = FSurf64;
+        using Descriptor = std::vector<float>;
+        static constexpr EFeatureType feature_type = EFeatureType::SURF;
+        static constexpr const char *name = "SURF64";
+        static constexpr bool is_binary = false;
+        static constexpr int descriptor_length = 64;
+    };
 
-  /**
-   * Calculates the mean value of a set of descriptors
-   * @param descriptors vector of pointers to descriptors
-   * @param mean mean descriptor
-   */
-  static void meanValue(const std::vector<pDescriptor> &descriptors, 
-    TDescriptor &mean);
-  
-  /**
-   * Calculates the (squared) distance between two descriptors
-   * @param a
-   * @param b
-   * @return (squared) distance
-   */
-  static double distance(const TDescriptor &a, const TDescriptor &b);
-  
-  /**
-   * Returns a string version of the descriptor
-   * @param a descriptor
-   * @return string version
-   */
-  static std::string toString(const TDescriptor &a);
-  
-  /**
-   * Returns a descriptor from a string
-   * @param a descriptor
-   * @param s string version
-   */
-  static void fromString(TDescriptor &a, const std::string &s);
+    template <>
+    struct FeatureTypeTraits<EFeatureType::SURF> : FeatureTraits<FSurf64>
+    {
+        using Type = FSurf64;
+    };
 
-  /**
-   * Returns a mat with the descriptors in float format
-   * @param descriptors
-   * @param mat (out) NxL 32F matrix
-   */
-  static void toMat32F(const std::vector<TDescriptor> &descriptors, 
-    cv::Mat &mat);
+    /// Functions to manipulate SURF64 descriptors
+    class FSurf64 : protected FClass // DEVNOTE see implementation of this class (or ORB, BRIEF) to get an idea of how to implement any custom descriptor to be used by DBoW2
+    {
+      public:
+        typedef FeatureTraits<FSurf64> Traits;
+        
+        /// Feature type
+        typedef FeatureTypeTraits<EFeatureType::SURF>::Type FeatureType;
+        static constexpr EFeatureType TypeId = Traits::feature_type;
 
-};
+        /// Descriptor type
+        typedef std::vector<float> TDescriptor;
+        /// Pointer to a single descriptor
+        typedef const TDescriptor *pDescriptor;
+        /// Descriptor length
+        static const int L = 64;
+
+        /**
+         * Returns the number of dimensions of the descriptor space
+         * @return dimensions
+         */
+        inline static int dimensions()
+        {
+            return L;
+        }
+
+        /**
+         * Calculates the mean value of a set of descriptors
+         * @param descriptors vector of pointers to descriptors
+         * @param mean mean descriptor
+         */
+        static void meanValue(const std::vector<pDescriptor> &descriptors,
+                              TDescriptor &mean);
+
+        /**
+         * Calculates the (squared) distance between two descriptors
+         * @param a
+         * @param b
+         * @return (squared) distance
+         */
+        static double distance(const TDescriptor &a, const TDescriptor &b);
+
+        /**
+         * Returns a string version of the descriptor
+         * @param a descriptor
+         * @return string version
+         */
+        static std::string toString(const TDescriptor &a);
+
+        /**
+         * Returns a descriptor from a string
+         * @param a descriptor
+         * @param s string version
+         */
+        static void fromString(TDescriptor &a, const std::string &s);
+
+        /**
+         * Returns a mat with the descriptors in float format
+         * @param descriptors
+         * @param mat (out) NxL 32F matrix
+         */
+        static void toMat32F(const std::vector<TDescriptor> &descriptors,
+                             cv::Mat &mat);
+    };
 
 } // namespace DBoW2
 

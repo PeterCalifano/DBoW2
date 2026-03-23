@@ -19,7 +19,7 @@ namespace DBoW2 {
 /// Generic class to encapsulate functions to manage descriptors.
 /**
  * This class must be inherited. Derived classes can be used as the
- * parameter F when creating Templated structures
+ * parameter TFeature when creating Templated structures
  * (TemplatedVocabulary, TemplatedDatabase, ...)
  */
 class FClass

@@ -51,6 +51,7 @@
 #include "QueryResults.h"
 #include "TemplatedDatabase.h"
 #include "TemplatedVocabulary.h"
+#include "FeatureTraits.h"
 
 /// Includes all the data structures to manage vocabularies and image databases
 namespace DBoW2
