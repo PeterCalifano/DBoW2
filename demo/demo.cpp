@@ -10,20 +10,19 @@
 #include <vector>
 
 // DBoW2
-#include "DBoW2.h" // defines OrbVocabulary and OrbDatabase
+#include <DBoW2/DBoW2.h> // defines OrbVocabulary and OrbDatabase
 
 // OpenCV
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/features2d.hpp>
 
-
 using namespace DBoW2;
-using namespace std;
+using std::vector, std::string, std::cout, std::endl, std::stringstream;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-void loadFeatures(vector<vector<cv::Mat > > &features);
+void loadFeatures(vector<vector<cv::Mat > > &features, std::string img_path="images");
 void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out);
 void testVocCreation(const vector<vector<cv::Mat > > &features);
 void testDatabase(const vector<vector<cv::Mat > > &features);
@@ -44,23 +43,36 @@ void wait()
 
 // ----------------------------------------------------------------------------
 
-int main()
-{
-  vector<vector<cv::Mat > > features;
-  loadFeatures(features);
+int main(int argc, char** argv)
+{ 
+  std::string img_path = "images"; // Default path of demo images
+  if (argc > 1)
+  {
+    img_path = argv[1]; // Override default path of demo images if provided
+  }
 
+  std::cout << "Using image path: " << img_path << std::endl;
+
+  vector<vector<cv::Mat > > features;
+
+  // Get features from images dataset
+  loadFeatures(features, img_path);
+
+  // Test creation of vocabulary from features
   testVocCreation(features);
 
   wait();
 
-  testDatabase(features);
+  // Test creation of database from features and query
+  testDatabase(features); // DOUBT: what is a database?
 
+  // NOTE: database is a collection of features from images that can be queried to find images similar to a input query image TBC
   return 0;
 }
 
 // ----------------------------------------------------------------------------
 
-void loadFeatures(vector<vector<cv::Mat > > &features)
+void loadFeatures(vector<vector<cv::Mat > > &features, std::string img_path)
 {
   features.clear();
   features.reserve(NIMAGES);
@@ -68,10 +80,11 @@ void loadFeatures(vector<vector<cv::Mat > > &features)
   cv::Ptr<cv::ORB> orb = cv::ORB::create();
 
   cout << "Extracting ORB features..." << endl;
+
   for(int i = 0; i < NIMAGES; ++i)
   {
     stringstream ss;
-    ss << "images/image" << i << ".png";
+    ss << (string)img_path + "/image" << i << ".png";
 
     cv::Mat image = cv::imread(ss.str(), 0);
     cv::Mat mask;
@@ -87,6 +100,12 @@ void loadFeatures(vector<vector<cv::Mat > > &features)
 
 // ----------------------------------------------------------------------------
 
+/**
+ * @brief Function converting a matrix cv::Mat into a std::vector<cv::Mat> containing the rows of cv::Mat as vector entries.
+ * 
+ * @param plain 
+ * @param out 
+ */
 void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out)
 {
   out.resize(plain.rows);
@@ -99,7 +118,7 @@ void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out)
 
 // ----------------------------------------------------------------------------
 
-void testVocCreation(const vector<vector<cv::Mat > > &features)
+void testVocCreation(const vector<vector<cv::Mat >> &features)
 {
   // branching factor and depth levels 
   const int k = 9;
